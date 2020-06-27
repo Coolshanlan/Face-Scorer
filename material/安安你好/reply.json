@@ -1,0 +1,26 @@
+[{
+        "type": "text",
+        "text": "你太酷了"
+    },
+    {
+        "type": "template",
+        "altText": "this is a buttons template",
+        "template": {
+            "type": "buttons",
+            "actions": [{
+                    "type": "postback",
+                    "label": "動作 1",
+                    "text": "動作 1",
+                    "data": "folder=安安你好"
+                },
+                {
+                    "type": "message",
+                    "label": "動作 2",
+                    "text": "動作 2"
+                }
+            ],
+            "title": "特殊功能展示",
+            "text": "postback回傳動作"
+        }
+    }
+]
