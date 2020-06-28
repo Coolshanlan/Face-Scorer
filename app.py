@@ -1,9 +1,16 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
+import re
 import requests
+import getimage
+import face_recognition
+import PIL.Image as Image
+import PIL.ImageDraw as ImageDraw
 from urllib.parse import parse_qs
 import PIL.Image as Image
+import imgurfile
+from imgurpython import ImgurClient
 from linebot.models.template import *
 from linebot.models.template import (
     ButtonsTemplate, CarouselTemplate, ConfirmTemplate, ImageCarouselTemplate
@@ -188,9 +195,9 @@ def process_follow_event(event):
         result_message_array
     )
 
-    # 從follow資料夾內，取出圖文選單id，並告知line，綁定用戶
-    linkRichMenuId = open("material/follow/rich_menu_id", 'r').read()
-    line_bot_api.link_rich_menu_to_user(event.source.user_id, linkRichMenuId)
+    # # 從follow資料夾內，取出圖文選單id，並告知line，綁定用戶
+    # linkRichMenuId = open("material/follow/rich_menu_id", 'r').read()
+    # line_bot_api.link_rich_menu_to_user(event.source.user_id, linkRichMenuId)
 
 
 # %%
@@ -236,14 +243,63 @@ def process_image_message(event):
 # 文字消息處理
 
 
+imagepath = ""
+imagefilename = ""
+remainphoto = 0
+
+
+def GiveDateSorce():
+    global imagefilename, imagepath
+    imagepath, imagefilename = getimage.getimage()
+
+    config = {
+        'name': imagefilename.split('.')[0],
+        'title': imagefilename.split('.')[0],
+        'description': 'test-description'
+    }
+
+    imageinfo = imgurfile.upload(imgur_client, imagepath, config)
+    imageurl = imageinfo['link']
+    with open("showimage.json", 'r', encoding='utf8') as f:
+        showimagejson = json.load(f)
+    showimagejson[0]["originalContentUrl"] = imageurl
+    showimagejson[0]["previewImageUrl"] = imageurl
+    with open("showimage.json", 'w') as json_file:
+        json.dump(showimagejson, json_file)
+    result_message_array = detect_json_array_to_new_message_array(
+        "showimage.json")
+    return result_message_array
+
+
 @handler.add(MessageEvent, message=TextMessage)
 def process_text_message(event):
-
+    global remainphoto, imagefilename, imagepath
     # 讀取本地檔案，並轉譯成消息
     result_message_array = []
-    replyJsonPath = "material/"+event.message.text+"/reply.json"
-    result_message_array = detect_json_array_to_new_message_array(
-        replyJsonPath)
+    if remainphoto >= 0 and (re.fullmatch(r"(\d)", event.message.text.replace(" ", ""), re.X) != None or re.fullmatch(r"10", event.message.text.replace(" ", ""), re.X) != None):
+        score = int(event.message.text.replace(" ", ""))
+        if score > 10:
+            score = 10
+        elif score < 0:
+            score = 0
+        with open("train.csv", 'a', encoding='utf8') as f:
+            f.write(imagefilename+","+str(score)+"\n")
+        remainphoto -= 1
+        if remainphoto >= 0:
+            result_message_array.append(
+                TextSendMessage(text=str(10-remainphoto)+"/10"))
+            result_message_array.extend(GiveDateSorce())
+    elif event.message.text == "讓我看女生":
+        replyJsonPath = "material/"+event.message.text+"/reply.json"
+        result_message_array = detect_json_array_to_new_message_array(
+            replyJsonPath)
+        remainphoto = 9
+        result_message_array.append(TextSendMessage(text="1/10"))
+        result_message_array.extend(GiveDateSorce())
+    else:
+        replyJsonPath = "material/"+event.message.text+"/reply.json"
+        result_message_array = detect_json_array_to_new_message_array(
+            replyJsonPath)
 
     # 發送
     line_bot_api.reply_message(
@@ -318,6 +374,7 @@ Application 運行（開發版）
 
 '''
 if __name__ == "__main__":
+    imgur_client = imgurfile.setauthorize()
     app.run(host='0.0.0.0')
 
 
