@@ -8,19 +8,18 @@
         "template": {
             "type": "buttons",
             "actions": [{
-                    "type": "postback",
-                    "label": "動作 1",
-                    "text": "動作 1",
-                    "data": "folder=安安你好"
+                    "type": "message",
+                    "label": "我要看女生",
+                    "text": "我要看女生"
                 },
                 {
                     "type": "message",
-                    "label": "動作 2",
-                    "text": "動作 2"
+                    "label": "請你看仔細",
+                    "text": "請你看仔細"
                 }
             ],
-            "title": "特殊功能展示",
-            "text": "postback回傳動作"
+            "title": "功能展示",
+            "text": "有以下功能 or 傳一張圖上來"
         }
     }
 ]

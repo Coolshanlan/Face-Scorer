@@ -3,12 +3,16 @@
 # %%
 import re
 import requests
+import torch
 import getimage
+import numpy as np
+import FaceScoreAnilysis as FSA
+import FaceDetect as FD
 import face_recognition
 import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
+import PIL.ImageFont as ImageFont
 from urllib.parse import parse_qs
-import PIL.Image as Image
 import imgurfile
 from imgurpython import ImgurClient
 from linebot.models.template import *
@@ -217,29 +221,42 @@ handler處理文字消息
 
 @handler.add(MessageEvent, message=ImageMessage)
 def process_image_message(event):
-    print("inin")
-    # 讀取本地檔案，並轉譯成消息
+    result_message_array = []
     response = requests.get(
         f"https://api.line.me/v2/bot/message/{event.message.id}/content", stream=True, headers={'Authorization': f'Bearer {secretFileContentJson.get("channel_access_token")}'})
 
     img = Image.open(response.raw)
-    file_name = f"1234.{img.format.lower()}"
-    img.save(file_name)
-    # with open(file_name, 'wb') as rw:
-    #     for chunk in response.iter_content(chunk_size=10000):
-    #         if chunk:
-    #             rw.write(chunk)
-    # print(event.message.content_provider)
-    # result_message_array = []
-    # replyJsonPath = "material/"+event.message.text+"/reply.json"
-    # result_message_array = detect_json_array_to_new_message_array(
-    #     replyJsonPath)
+    filepath = f"predection/{event.message.id}.{img.format.lower()}"
+    img.save(filepath)
+    # filepath = "predection/306020.jpg"
+    img, rects = FD.getFaceRect(filepath)
+    copyrect = [i for i in rects]
+    Img = Image.fromarray(img)
+    imgdrw = ImageDraw.Draw(Img)
+    for i in range(0, len(rects)):
+        top, right, bottom, left = rects[i]
+        imgdrw.rectangle([(left, top), (right, bottom)],
+                         outline=(255, 0, 0), width=10)
+    rectResize = FD.resizeRect(rects)
+    score = []
+    scorestring = ""
+    font = ImageFont.truetype('arial.ttf', 60)
+    for i in range(len(rectResize)):
+        top, right, bottom, left = rectResize[i]
+        resizeimage = img[top:bottom, left:right]
+        nowscore = round(FSA.prediction(resizeimage), 3)
+        scorestring += str(nowscore)+"\n"
+        top, right, bottom, left = copyrect[i]
+        imgdrw.text((left, top-70), str(nowscore), (255, 0, 0), font=font)
+        score.append(nowscore)
+    Img.save(filepath)
+    result_message_array.append(uploadImage(filepath.split('/')[-1], filepath))
+    result_message_array.append(TextSendMessage(text=scorestring))
+    line_bot_api.reply_message(
+        event.reply_token,
+        result_message_array
+    )
 
-    # # 發送
-    # line_bot_api.reply_message(
-    #     event.reply_token,
-    #     result_message_array
-    # )
 # 文字消息處理
 
 
@@ -248,30 +265,48 @@ imagefilename = ""
 remainphoto = 0
 
 
-def GiveDateSorce():
-    global imagefilename, imagepath
-    imagepath, imagefilename = getimage.getimage()
-
+def uploadImage(filename, path):
     config = {
-        'name': imagefilename.split('.')[0],
-        'title': imagefilename.split('.')[0],
+        'name': filename.split('.')[0],
+        'title': path.split('.')[0],
         'description': 'test-description'
     }
 
-    imageinfo = imgurfile.upload(imgur_client, imagepath, config)
+    imageinfo = imgurfile.upload(imgur_client, path, config)
     imageurl = imageinfo['link']
-    with open("showimage.json", 'r', encoding='utf8') as f:
-        showimagejson = json.load(f)
-    showimagejson[0]["originalContentUrl"] = imageurl
-    showimagejson[0]["previewImageUrl"] = imageurl
-    with open("showimage.json", 'w') as json_file:
-        json.dump(showimagejson, json_file)
-    result_message_array = detect_json_array_to_new_message_array(
-        "showimage.json")
+    # with open("showimage.json", 'r', encoding='utf8') as f:
+    #     showimagejson = json.load(f)
+    result_message_array = ImageSendMessage(
+        original_content_url=imageurl, preview_image_url=imageurl)
     return result_message_array
 
 
-@handler.add(MessageEvent, message=TextMessage)
+def GiveNewImage():
+    global imagefilename, imagepath
+    imagepath, imagefilename = getimage.getimage()
+    result_message_array = uploadImage(imagefilename, imagepath)
+    # config = {
+    #     'name': imagefilename.split('.')[0],
+    #     'title': imagefilename.split('.')[0],
+    #     'description': 'test-description'
+    # }
+
+    # imageinfo = imgurfile.upload(imgur_client, imagepath, config)
+    # imageurl = imageinfo['link']
+    # # with open("showimage.json", 'r', encoding='utf8') as f:
+    # #     showimagejson = json.load(f)
+    # result_message_array = ImageSendMessage(
+    #     original_content_url=imageurl, preview_image_url=imageurl)
+    # # showimagejson[0]["originalContentUrl"] = imageurl
+    # # showimagejson[0]["previewImageUrl"] = imageurl
+    # # with open("showimage.json", 'w') as json_file:
+    # #     json.dump(showimagejson, json_file)
+    # # result_message_array = detect_json_array_to_new_message_array(
+    # #     "showimage.json")
+    return result_message_array
+
+
+@ handler.add(MessageEvent, message=TextMessage)
 def process_text_message(event):
     global remainphoto, imagefilename, imagepath
     # 讀取本地檔案，並轉譯成消息
@@ -288,14 +323,33 @@ def process_text_message(event):
         if remainphoto >= 0:
             result_message_array.append(
                 TextSendMessage(text=str(10-remainphoto)+"/10"))
-            result_message_array.extend(GiveDateSorce())
-    elif event.message.text == "讓我看女生":
+            result_message_array.append(GiveNewImage())
+    elif event.message.text == "我要看女生":
         replyJsonPath = "material/"+event.message.text+"/reply.json"
         result_message_array = detect_json_array_to_new_message_array(
             replyJsonPath)
         remainphoto = 9
         result_message_array.append(TextSendMessage(text="1/10"))
-        result_message_array.extend(GiveDateSorce())
+        result_message_array.append(GiveNewImage())
+    elif event.message.text == "請你看仔細":
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text="模型訓練中...")
+        )
+        FSA.updateData()
+        log = ""
+        for i in range(2):
+            acc, loss = FSA.train()
+            acc = round(acc, 4)
+            loss = round(loss, 4)
+            log += f"loss:{loss}  acc:{acc}\n"
+        log += "訓練完成！"
+        line_bot_api.push_message(
+            event.source.user_id,
+            TextSendMessage(text=log)
+        )
+        return
+
     else:
         replyJsonPath = "material/"+event.message.text+"/reply.json"
         result_message_array = detect_json_array_to_new_message_array(
@@ -330,7 +384,7 @@ menu, folder, tag
 '''
 
 
-@handler.add(PostbackEvent)
+@ handler.add(PostbackEvent)
 def process_postback_event(event):
 
     query_string_dict = parse_qs(event.postback.data)
@@ -375,6 +429,7 @@ Application 運行（開發版）
 '''
 if __name__ == "__main__":
     imgur_client = imgurfile.setauthorize()
+    # process_image_message(None)
     app.run(host='0.0.0.0')
 
 

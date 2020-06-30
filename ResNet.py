@@ -79,7 +79,8 @@ class Bottleneck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, layers, num_classes=10, insize=800):
+    def __init__(self, blockplane, layers, num_classes=11, insize=800):
+        block = Bottleneck if blockplane == 1 else BasicBlock
         self.inplanes = 64
         self.inputsize = insize
         super(ResNet, self).__init__()
@@ -96,11 +97,8 @@ class ResNet(nn.Module):
 
         fsize = ceil(self.inputsize / 32 - 7 + 1)
         self.finalnum = 512*block.expansion*fsize*fsize
-        # self.fc3 = nn.Linear(self.featurefinal + self.finalnum,self.featurefinal + self.finalnum)
-        # self.fcres = nn.Linear(self.finalnum,20)
         self.fcout = nn.Linear(self.finalnum, num_classes)
-        self.dropout = nn.Dropout(p=0.9)
-        self.drop = nn.Dropout(p=0.8)
+        self.dropout = nn.Dropout(p=0.3)
 
         # self.fcout= nn.Linear(self.finalnum*2, num_classes)
         for m in self.modules():
@@ -140,8 +138,7 @@ class ResNet(nn.Module):
         y1 = self.layer4(y1)
         y1 = self.avgpool(y1)
         y1 = y1.view(-1, self.finalnum)
-        x = self.dropout(y1)
-        x = self.fcout(x)
-
+        # x = self.dropout(y1)
+        x = self.fcout(y1)
         return x
 #model = ResNet(BasicBlock, [3, 4, 6, 3],insize = image_size, **kwargs)

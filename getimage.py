@@ -14,7 +14,7 @@ import urllib
 import face_recognition
 import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
-
+import FaceDetect
 # %%
 url = 'https://www.shutterstock.com/zh-Hant/search/woman?kw=+%E5%A5%B3%E7%94%9F++%E7%B4%A0%E6%9D%90&gclid=Cj0KCQjw3Nv3BRC8ARIsAPh8hgIN0KN0j1woIrQtZb1ULfTSkzQAnyHGDnNj6eXi7D2WcG8vykOak0YaAnoqEALw_wcB&gclsrc=aw.ds&image_type=photo&mreleased=true&ethnicity=chinese&ethnicity=japanese&age=20s&gender=female&number_of_people=1&category=People&sort=newest&'
 header = {
@@ -32,23 +32,6 @@ header = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"}
 
 
-# %%
-# resp = requests.get(url+f"page={i}",headers=header)
-# soup = BeautifulSoup(resp.text)
-# print(resp.status_code)
-# print(len(soup.find_all("div",{'class':"z_g_c"})))
-# print(len(soup.find_all("img",{'class':"z_h_c z_h_e"})))
-# for p in soup.find_all("img"):
-#     print(p.get("src"))
-
-
-# %%
-# print(soup)
-
-
-# %%
-
-
 def getimage(num=1):
     imagepath = []
     while(1):
@@ -64,54 +47,19 @@ def getimage(num=1):
                 for chunk in rq.iter_content(chunk_size=10000):
                     if chunk:
                         rw.write(chunk)
-        image = face_recognition.load_image_file(
+        # image = face_recognition.load_image_file(
+        #     "dataset/"+imagepath.split("/")[-1])
+        image, face_locations = FaceDetect.getFaceRect(
             "dataset/"+imagepath.split("/")[-1])
-        face_locations = face_recognition.face_locations(image)
-        print(face_locations)
         if len(face_locations) != 1:
             os.remove("dataset/"+imagepath.split("/")[-1])
             continue
+        face_locations = FaceDetect.resizeRect(face_locations)
         img = Image.fromarray(image)
-
         top, right, bottom, left = face_locations[0]
-        top = int(top - top*0.6)
-        left = int(left - left*0.14)
-        right = int(right + right*0.14)
-        bottom = int(bottom + bottom*0.11)
         image = image[top:bottom, left:right]
         img = Image.fromarray(image)
         img.save("dataset/"+imagepath.split("/")[-1])
         print(f"Save image {imagepath}")
         break
     return "dataset/"+imagepath.split("/")[-1], imagepath.split("/")[-1]
-    # %%
-    # for imp in imagepath:
-
-    #     # methon 01
-    #     # with  requests.get(img_url,stream=True) as rq :
-    #     #     rq.raise_for_status()
-
-    #         # img = Image.open(rq.raw)
-    #         # img.save('{outdir}/{tag}.{ext}'.format(outdir=output_dir,tag=img_id,ext=img.format.lower()))
-    #         # print(img.format.lower())
-
-    #     # methon 02
-    #     # urllib.request.urlretrieve(img_url,'{outdir}/{tag}.{ext}'.format(outdir=output_dir,tag=img_id,ext="jpg"))
-
-    #     # methon 03
-    #     with requests.get(imp, stream=True) as rq:
-    #         rq.raise_for_status()  # check respose status
-    #         with open("dataset/"+imp.split("/")[-1], "wb") as rw:
-    #             for chunk in rq.iter_content(chunk_size=10000):
-    #                 if chunk:
-    #                     rw.write(chunk)
-
-    #     print(f"Save image {imp}")
-    # # 組合圖片而非網站的網址
-
-    # # 對圖片送出請求
-
-
-# # %%
-# for i in range(0, 20):
-#     getimage()
