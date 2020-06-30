@@ -21,7 +21,8 @@ from torchvision import transforms, utils
 trainImagePath = []
 trainImageLabel = []
 image_size = 224
-learning_rate = 0.001
+learning_rate = 0.0005
+batchsize = 10
 
 
 def updateData():
@@ -65,7 +66,8 @@ def train():
             for i in range(0, len(output)):
                 if output[i].argmax() == label[i]:
                     acc += 1
-    return acc/len(trainloader)/5, lossvalue/len(trainloader)
+    torch.save(model.state_dict(), "Resnow.pkl")
+    return acc/len(trainImageLabel), lossvalue/(len(trainloader))
 
 
 updateData()
@@ -76,11 +78,13 @@ trans = transforms.Compose([transforms.ToTensor(), transforms.ToPILImage(), tran
                             transforms.ToTensor(), normalize])
 trainDataLoader = TrainDataloader(
     trainImagePath, trainImageLabel, transformer=trans)
-trainloader = DataLoader(trainDataLoader, batch_size=5, shuffle=True)
-model = ResNet.ResNet(1, [3, 4, 8, 4], insize=image_size)
+trainloader = DataLoader(trainDataLoader, batch_size=batchsize, shuffle=True)
+model = ResNet.ResNet(1, [3, 4, 6, 4], insize=image_size)
+if os.path.isfile("Resnow.pkl"):
+    model.load_state_dict(torch.load("Resnow.pkl"))
 lossfunc = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.AdamW(
     model.parameters(), lr=learning_rate)
-# for i in range(0, 15):
+# for i in range(0, 20):
 #     lossv, accv = train()
 #     print(lossv, accv)

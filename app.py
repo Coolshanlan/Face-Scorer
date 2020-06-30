@@ -222,13 +222,13 @@ handler處理文字消息
 @handler.add(MessageEvent, message=ImageMessage)
 def process_image_message(event):
     result_message_array = []
-    response = requests.get(
-        f"https://api.line.me/v2/bot/message/{event.message.id}/content", stream=True, headers={'Authorization': f'Bearer {secretFileContentJson.get("channel_access_token")}'})
+    # response = requests.get(
+    #     f"https://api.line.me/v2/bot/message/{event.message.id}/content", stream=True, headers={'Authorization': f'Bearer {secretFileContentJson.get("channel_access_token")}'})
 
-    img = Image.open(response.raw)
-    filepath = f"predection/{event.message.id}.{img.format.lower()}"
-    img.save(filepath)
-    # filepath = "predection/306020.jpg"
+    # img = Image.open(response.raw)
+    # filepath = f"predection/{event.message.id}.{img.format.lower()}"
+    # img.save(filepath)
+    filepath = "predection/308992.jpg"
     img, rects = FD.getFaceRect(filepath)
     copyrect = [i for i in rects]
     Img = Image.fromarray(img)
@@ -285,24 +285,6 @@ def GiveNewImage():
     global imagefilename, imagepath
     imagepath, imagefilename = getimage.getimage()
     result_message_array = uploadImage(imagefilename, imagepath)
-    # config = {
-    #     'name': imagefilename.split('.')[0],
-    #     'title': imagefilename.split('.')[0],
-    #     'description': 'test-description'
-    # }
-
-    # imageinfo = imgurfile.upload(imgur_client, imagepath, config)
-    # imageurl = imageinfo['link']
-    # # with open("showimage.json", 'r', encoding='utf8') as f:
-    # #     showimagejson = json.load(f)
-    # result_message_array = ImageSendMessage(
-    #     original_content_url=imageurl, preview_image_url=imageurl)
-    # # showimagejson[0]["originalContentUrl"] = imageurl
-    # # showimagejson[0]["previewImageUrl"] = imageurl
-    # # with open("showimage.json", 'w') as json_file:
-    # #     json.dump(showimagejson, json_file)
-    # # result_message_array = detect_json_array_to_new_message_array(
-    # #     "showimage.json")
     return result_message_array
 
 
@@ -338,7 +320,7 @@ def process_text_message(event):
         )
         FSA.updateData()
         log = ""
-        for i in range(2):
+        for i in range(5):
             acc, loss = FSA.train()
             acc = round(acc, 4)
             loss = round(loss, 4)
@@ -429,8 +411,13 @@ Application 運行（開發版）
 '''
 if __name__ == "__main__":
     imgur_client = imgurfile.setauthorize()
-    # process_image_message(None)
-    app.run(host='0.0.0.0')
+    # for i in range(15):
+    #     acc, loss = FSA.train()
+    #     acc = round(acc, 4)
+    #     loss = round(loss, 4)
+    #     print(f"loss:{loss}  acc:{acc}")
+    process_image_message(None)
+    # app.run(host='0.0.0.0')
 
 
 # %%
