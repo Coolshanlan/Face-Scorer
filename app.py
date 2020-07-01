@@ -1,6 +1,7 @@
 # To add a new cell, type '# %%'
 # To add a new markdown cell, type '# %% [markdown]'
 # %%
+import os
 import re
 import requests
 import torch
@@ -409,15 +410,15 @@ def process_postback_event(event):
 Application 運行（開發版）
 
 '''
-if __name__ == "__main__":
-    imgur_client = imgurfile.setauthorize()
-    # for i in range(15):
-    #     acc, loss = FSA.train()
-    #     acc = round(acc, 4)
-    #     loss = round(loss, 4)
-    #     print(f"loss:{loss}  acc:{acc}")
-    process_image_message(None)
-    # app.run(host='0.0.0.0')
+# if __name__ == "__main__":
+#     imgur_client = imgurfile.setauthorize()
+#     # for i in range(15):
+#     #     acc, loss = FSA.train()
+#     #     acc = round(acc, 4)
+#     #     loss = round(loss, 4)
+#     #     print(f"loss:{loss}  acc:{acc}")
+#     # process_image_message(None)
+#     app.run(host='0.0.0.0')
 
 
 # %%
@@ -427,9 +428,9 @@ Application 運行（heroku版）
 
 '''
 
-# import os
-# if __name__ == "__main__":
-#     app.run(host='0.0.0.0',port=os.environ['PORT'])
+if __name__ == "__main__":
+    imgur_client = imgurfile.setauthorize()
+    app.run(host='0.0.0.0', port=os.environ['PORT'])
 
 
 # %%

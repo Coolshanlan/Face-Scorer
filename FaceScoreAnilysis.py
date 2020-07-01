@@ -66,7 +66,7 @@ def train():
             for i in range(0, len(output)):
                 if output[i].argmax() == label[i]:
                     acc += 1
-    torch.save(model.state_dict(), "Resnow.pkl")
+    # torch.save(model.state_dict(), "Resnow.pkl")
     return acc/len(trainImageLabel), lossvalue/(len(trainloader))
 
 
@@ -80,8 +80,8 @@ trainDataLoader = TrainDataloader(
     trainImagePath, trainImageLabel, transformer=trans)
 trainloader = DataLoader(trainDataLoader, batch_size=batchsize, shuffle=True)
 model = ResNet.ResNet(1, [3, 4, 6, 4], insize=image_size)
-if os.path.isfile("Resnow.pkl"):
-    model.load_state_dict(torch.load("Resnow.pkl"))
+# if os.path.isfile("Resnow.pkl"):
+#     model.load_state_dict(torch.load("Resnow.pkl"))
 lossfunc = torch.nn.CrossEntropyLoss()
 optimizer = torch.optim.AdamW(
     model.parameters(), lr=learning_rate)
