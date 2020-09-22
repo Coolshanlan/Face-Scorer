@@ -1,8 +1,8 @@
 from imgurpython import ImgurClient
-client_id = '07625867a557695'
-client_secret = '54ce908a1b9655033e239af3a2a761dfaff615af'
-access_token = 'd3e385bc76b17ca21f51b7f5a3341d83305f2b2a'
-refresh_token = '7b0675eee84403512027566f6e6def1192155dc5'
+client_id = ''
+client_secret = ''
+access_token = ''
+refresh_token = ''
 
 
 def getauthorize():
