@@ -16,6 +16,7 @@ import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
 import FaceDetect
 # %%
+urlman = "https://www.shutterstock.com/zh-Hant/search/man?kw=+%E7%94%B7%E7%94%9F++%E7%B4%A0%E6%9D%90&gclid=Cj0KCQjw3Nv3BRC8ARIsAPh8hgIN0KN0j1woIrQtZb1ULfTSkzQAnyHGDnNj6eXi7D2WcG8vykOak0YaAnoqEALw_wcB&gclsrc=aw.ds&image_type=photo&mreleased=true&ethnicity=chinese&ethnicity=japanese&gender=male&number_of_people=1&category=People&sort=newest&age=20s"
 url = 'https://www.shutterstock.com/zh-Hant/search/woman?kw=+%E5%A5%B3%E7%94%9F++%E7%B4%A0%E6%9D%90&gclid=Cj0KCQjw3Nv3BRC8ARIsAPh8hgIN0KN0j1woIrQtZb1ULfTSkzQAnyHGDnNj6eXi7D2WcG8vykOak0YaAnoqEALw_wcB&gclsrc=aw.ds&image_type=photo&mreleased=true&ethnicity=chinese&ethnicity=japanese&age=20s&gender=female&number_of_people=1&category=People&sort=newest&'
 header = {
     "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
@@ -32,11 +33,16 @@ header = {
     "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.116 Safari/537.36"}
 
 
-def getimage(num=1):
+def getimage(num=1, sex=0):
     imagepath = []
+    local_url = ""
     while(1):
+        if sex == 0:
+            local_url = urlman
+        else:
+            local_url = url
         page = random.randrange(1, 2062)
-        resp = requests.get(url+f"page={page}", headers=header)
+        resp = requests.get(local_url+f"page={page}", headers=header)
         soup = BeautifulSoup(resp.content)
         imagepathlist = [p['src']
                          for p in soup.find_all('img') if p.get("src") != None]

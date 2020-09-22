@@ -223,13 +223,13 @@ handler處理文字消息
 @handler.add(MessageEvent, message=ImageMessage)
 def process_image_message(event):
     result_message_array = []
-    # response = requests.get(
-    #     f"https://api.line.me/v2/bot/message/{event.message.id}/content", stream=True, headers={'Authorization': f'Bearer {secretFileContentJson.get("channel_access_token")}'})
+    response = requests.get(
+        f"https://api.line.me/v2/bot/message/{event.message.id}/content", stream=True, headers={'Authorization': f'Bearer {secretFileContentJson.get("channel_access_token")}'})
 
-    # img = Image.open(response.raw)
-    # filepath = f"predection/{event.message.id}.{img.format.lower()}"
-    # img.save(filepath)
-    filepath = "predection/308992.jpg"
+    img = Image.open(response.raw)
+    filepath = f"predection/{event.message.id}.{img.format.lower()}"
+    img.save(filepath)
+    # filepath = "predection/308992.jpg"
     img, rects = FD.getFaceRect(filepath)
     copyrect = [i for i in rects]
     Img = Image.fromarray(img)
@@ -282,16 +282,16 @@ def uploadImage(filename, path):
     return result_message_array
 
 
-def GiveNewImage():
+def GiveNewImage(sex):
     global imagefilename, imagepath
-    imagepath, imagefilename = getimage.getimage()
+    imagepath, imagefilename = getimage.getimage(sex=sex)
     result_message_array = uploadImage(imagefilename, imagepath)
     return result_message_array
 
 
 @ handler.add(MessageEvent, message=TextMessage)
 def process_text_message(event):
-    global remainphoto, imagefilename, imagepath
+    global remainphoto, imagefilename, imagepath, getsex
     # 讀取本地檔案，並轉譯成消息
     result_message_array = []
     if remainphoto >= 0 and (re.fullmatch(r"(\d)", event.message.text.replace(" ", ""), re.X) != None or re.fullmatch(r"10", event.message.text.replace(" ", ""), re.X) != None):
@@ -306,14 +306,23 @@ def process_text_message(event):
         if remainphoto >= 0:
             result_message_array.append(
                 TextSendMessage(text=str(10-remainphoto)+"/10"))
-            result_message_array.append(GiveNewImage())
+            result_message_array.append(GiveNewImage(getsex))
+    elif event.message.text == "我要看男生":
+        getsex = 0
+        replyJsonPath = "material/"+"我要看女生"+"/reply.json"
+        result_message_array = detect_json_array_to_new_message_array(
+            replyJsonPath)
+        remainphoto = 9
+        result_message_array.append(TextSendMessage(text="1/10"))
+        result_message_array.append(GiveNewImage(getsex))
     elif event.message.text == "我要看女生":
+        getsex = 1
         replyJsonPath = "material/"+event.message.text+"/reply.json"
         result_message_array = detect_json_array_to_new_message_array(
             replyJsonPath)
         remainphoto = 9
         result_message_array.append(TextSendMessage(text="1/10"))
-        result_message_array.append(GiveNewImage())
+        result_message_array.append(GiveNewImage(getsex))
     elif event.message.text == "請你看仔細":
         line_bot_api.reply_message(
             event.reply_token,
@@ -410,15 +419,15 @@ def process_postback_event(event):
 Application 運行（開發版）
 
 '''
-# if __name__ == "__main__":
-#     imgur_client = imgurfile.setauthorize()
-#     # for i in range(15):
-#     #     acc, loss = FSA.train()
-#     #     acc = round(acc, 4)
-#     #     loss = round(loss, 4)
-#     #     print(f"loss:{loss}  acc:{acc}")
-#     # process_image_message(None)
-#     app.run(host='0.0.0.0')
+if __name__ == "__main__":
+    imgur_client = imgurfile.setauthorize()
+    # for i in range(15):
+    #     acc, loss = FSA.train()
+    #     acc = round(acc, 4)
+    #     loss = round(loss, 4)
+    #     print(f"loss:{loss}  acc:{acc}")
+    # process_image_message(None)
+    app.run(host='0.0.0.0')
 
 
 # %%
@@ -428,9 +437,9 @@ Application 運行（heroku版）
 
 '''
 
-if __name__ == "__main__":
-    imgur_client = imgurfile.setauthorize()
-    app.run(host='0.0.0.0', port=os.environ['PORT'])
+# if __name__ == "__main__":
+#     imgur_client = imgurfile.setauthorize()
+#     app.run(host='0.0.0.0', port=os.environ['PORT'])
 
 
 # %%
