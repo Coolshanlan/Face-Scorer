@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from math import ceil
+import torch.nn.functional as F
 
 
 class BasicBlock(nn.Module):
@@ -140,5 +141,8 @@ class ResNet(nn.Module):
         y1 = y1.view(-1, self.finalnum)
         # x = self.dropout(y1)
         x = self.fcout(y1)
+        print(x)
+        x = F.sigmoid(x)*10
+        print(x)
         return x
 #model = ResNet(BasicBlock, [3, 4, 6, 3],insize = image_size, **kwargs)

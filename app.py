@@ -9,7 +9,6 @@ import getimage
 import numpy as np
 import FaceScoreAnilysis as FSA
 import FaceDetect as FD
-import face_recognition
 import PIL.Image as Image
 import PIL.ImageDraw as ImageDraw
 import PIL.ImageFont as ImageFont
@@ -40,12 +39,6 @@ from linebot.models import (
     MessageEvent, TextMessage, ImageMessage
 )
 from flask import Flask, request, abort
-from IPython import get_ipython
-
-# %%
-# get_ipython().system('pip install flask')
-# get_ipython().system('pip install line-bot-sdk')
-
 
 # %%
 '''
@@ -223,13 +216,18 @@ handler處理文字消息
 @handler.add(MessageEvent, message=ImageMessage)
 def process_image_message(event):
     result_message_array = []
-    response = requests.get(
-        f"https://api.line.me/v2/bot/message/{event.message.id}/content", stream=True, headers={'Authorization': f'Bearer {secretFileContentJson.get("channel_access_token")}'})
-
-    img = Image.open(response.raw)
-    filepath = f"predection/{event.message.id}.{img.format.lower()}"
-    img.save(filepath)
-    # filepath = "predection/308992.jpg"
+    message_content=line_bot_api.get_message_content(event.message.id)
+    filepath = f"predection/{event.message.id}.png"
+    with open(filepath, 'wb') as fd:
+        for chunk in message_content.iter_content():
+            fd.write(chunk)
+    # Old approach
+    # response = requests.get(
+    #     f"https://api.line.me/v2/bot/message/{event.message.id}/content", stream=True, headers={'Authorization': f'Bearer {secretFileContentJson.get("channel_access_token")}'})
+    # print(response.status_code)
+    # img = Image.open(message_content)
+    # filepath = f"predection/{event.message.id}.{img.format.lower()}"
+    # img.save(filepath)
     img, rects = FD.getFaceRect(filepath)
     copyrect = [i for i in rects]
     Img = Image.fromarray(img)
@@ -331,10 +329,10 @@ def process_text_message(event):
         FSA.updateData()
         log = ""
         for i in range(5):
-            acc, loss = FSA.train()
-            acc = round(acc, 4)
+            loss = FSA.train()
+            # acc = round(acc, 4)
             loss = round(loss, 4)
-            log += f"loss:{loss}  acc:{acc}\n"
+            log += f"loss:{loss}\n"#  acc:{acc}\n"
         log += "訓練完成！"
         line_bot_api.push_message(
             event.source.user_id,

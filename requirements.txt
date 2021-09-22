@@ -1,2 +1,9 @@
+python=3.6
+Pillow=5.3.0
+cmake
+dlib
+face_recognition
+imgurpython
+pytorch
 line-bot-sdk
 flask

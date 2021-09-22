@@ -4,7 +4,7 @@ import torch.utils.model_zoo as model_zoo
 from PIL import Image
 
 
-class TrainDataloader(Dataset):
+class TrainDataset(Dataset):
     def __init__(self, imagepaths, labels, transformer):
         self.imagepathlist = imagepaths
         self.labellist = labels

@@ -30,11 +30,11 @@ def setauthorize():
 
 
 def upload(client, path, config):
-    image = client.upload_from_path(
-        path, config=config, anon=False)
+    image = client.upload_from_path(path, config=config, anon=False)
     return image
 
-
+if __name__ == '__main__':
+    getauthorize()
 # config = {
 #     'name': 'testupload',
 #     'title': 'test-title',
