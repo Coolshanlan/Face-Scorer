@@ -1,4 +1,6 @@
 # Personal Face Scorer line Bot
+Face Scorer 是個臉部評分系統，由於每個人的審美觀不同，網路上現有的臉部評分器只能透過**通俗**的眼光給予評分，並不是按照**個人喜好**，因此 Face Scorer 透過 Line Bot 實現伊人一model 自己訓練屬於自己的臉部評分器，使用`我要看女/男生`，Line Bot 會自動上網抓10張男/女生照片，依照使用者給的分數建構資料集，在使用`請你看仔細`來訓練模型，完成屬於自己的臉部評分器，最後只要上傳想評分的照片即可。
+## Feature
 - 我要看女生(Get 10 pictures of training date)
 - 請你看仔細(Train model)
 - upload image to get the Score
@@ -44,3 +46,32 @@ Use ngrok to setup a local server
   ngrok http 5000 -region ap
   ```
 4. copy https url and paste to Website of Messaging API -> webhook settings
+
+## How to install
+
+### Install dlib on windows
+Don't use pip install dlib or conda
+
+1. download whl file in https://pypi.org/simple/dlib/
+2. pip install `whl file path`
+
+### Install Face Recognition
+You should install lib first
+
+and type `pip install face_recognition` in cmd
+
+### Requirements
+```cmd
+pip install -r requirements.txt
+```
+```
+python=3.6
+Pillow=5.3.0
+cmake
+dlib
+face_recognition
+imgurpython
+pytorch
+line-bot-sdk
+flask
+```
