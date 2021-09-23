@@ -6,10 +6,10 @@ Face Scorer 是個臉部評分系統，由於每個人的審美觀不同，網�
 <img src="https://github.com/Coolshanlan/Face-Scorer/blob/master/demo_image/Demo_image01.png?raw=true" width=40%><img src="https://github.com/Coolshanlan/Face-Scorer/blob/master/demo_image/Demo_image03.png?raw=true" width=40%>
 
 ### 訓練模型
-<img src="https://github.com/Coolshanlan/Face-Scorer/blob/master/demo_image/Demo_image02.png?raw=true" width=24%>
+<img src="https://github.com/Coolshanlan/Face-Scorer/blob/master/demo_image/Demo_image02.png?raw=true" width=50%>
 
 ### 照片評分
-<img src="https://github.com/Coolshanlan/Face-Scorer/blob/master/demo_image/Demo_image04.png?raw=true" width=24%>
+<img src="https://github.com/Coolshanlan/Face-Scorer/blob/master/demo_image/Demo_image04.png?raw=true" width=50%>
 
 ## Feature
 - 我要看女生(Get 10 pictures of training date)
