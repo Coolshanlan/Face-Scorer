@@ -12,7 +12,7 @@ Face Scorer 是個臉部評分系統，由於每個人的審美觀不同，網�
 <img src="https://github.com/Coolshanlan/Face-Scorer/blob/master/demo_image/Demo_image04.png?raw=true" width=50%>
 
 ## Feature
-- 我要看女生(Get 10 pictures of training date)
+- 我要看女生/女生(Get 10 pictures of training date)
 - 請你看仔細(Train model)
 - upload image to get the Score
 ## Model
@@ -61,13 +61,13 @@ Use ngrok to setup a local server
 ## How to install
 
 ### Install dlib on windows
-Don't use pip install dlib or conda
+Don't use pip or conda to install dlib
 
 1. download whl file in https://pypi.org/simple/dlib/
 2. pip install `whl file path`
 
 ### Install Face Recognition
-You should install lib first
+You should install dlib first
 
 and type `pip install face_recognition` in cmd
 
